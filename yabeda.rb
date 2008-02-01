@@ -3,6 +3,7 @@
 require 'pp'
 
 require 'yabeda-config.rb'
+require 'yabeda-time.rb'
 require 'yabeda-logging.rb'
 
 def getHostname()
@@ -59,7 +60,7 @@ end
 
 def getResource ( paths )
     output = getArray()
-    time = Time.now.to_i.to_s
+    time = getTime()
     hostname = getHostname()
 
     paths.each { |path|

@@ -1,8 +1,10 @@
 #!/bin/ruby
 
+require 'yabeda-time.rb'
+
 DEBUG = true
 
 def msgDbg( error )
-    error = Time.now.to_i.to_s + ": " + error
+    error = getTime() + ": " + error
     DEBUG and puts error
 end
