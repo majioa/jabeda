@@ -57,12 +57,15 @@ def getProcPaths()
     returnpaths = getArray()
 
     paths = Dir["/proc/bc/*"].sort
-    paths.each { |path|
-        if FileTest.directory?( path ) and !path.match( /#{CONFIG["disProc"]}/ ) then
-            returnpaths << path
-        end
-    }
-    return (returnpaths == nil) ? nil : returnpaths
+	if paths then
+        paths.each { |path|
+            if FileTest.directory?( path ) and !path.match( /#{CONFIG["disProc"]}/ ) then
+	            returnpaths << path
+            end
+	    }
+		return returnpaths
+	end
+	return false
 end
 
 def getResource ( paths )
@@ -146,7 +149,7 @@ def doStuff( results )
     return output
 end
 
-CONFIG = getConfig( configFile )
+CONFIG = getConfig( configFile ) or return 0
 
 oldData = validateData( readFile( stateFile ) )
 
