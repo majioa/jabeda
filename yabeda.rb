@@ -2,8 +2,7 @@
 
 require 'pp'
 
-stateFile = "/var/lib/yabeda/state"
-configFile = "/etc/yabeda/yabeda.conf"
+require 'yabeda-config.rb'
 
 DEBUG = true
 
@@ -149,9 +148,9 @@ def doStuff( results )
     return output
 end
 
-CONFIG = getConfig( configFile ) or return 0
+CONFIG = getConfig( CONFIGFILE ) or return 0
 
-oldData = validateData( readFile( stateFile ) )
+oldData = validateData( readFile( STATEFILE ) )
 
 currentData = getResource( getProcPaths() )
 
