@@ -3,13 +3,7 @@
 require 'pp'
 
 require 'yabeda-config.rb'
-
-DEBUG = true
-
-def msgDbg( error )
-    error = getTime() + ": " + error
-    DEBUG and puts error
-end
+require 'yabeda-logging.rb'
 
 def getHostname()
     hostname = ENV['HOSTNAME'].to_s
@@ -17,10 +11,6 @@ def getHostname()
         hostname += CONFIG["hostNameSuffix"]
     end
     return hostname
-end
-
-def getTime()
-    return Time.now.to_i.to_s
 end
 
 def getArray()
@@ -69,7 +59,7 @@ end
 
 def getResource ( paths )
     output = getArray()
-    time = getTime()
+    time = Time.now.to_i.to_s
     hostname = getHostname()
 
     paths.each { |path|
