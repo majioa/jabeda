@@ -92,22 +92,6 @@ def saveData( file, contents )
     return true
 end
 
-def getConfig( file )
-
-    contents = readFile( file )
-    opt = Hash.new
-
-    if contents then
-        contents.each do |line|
-            line.chomp!
-            ( key, arg ) = line.split( /=/, 2 )
-            opt[ key ] = arg
-        end
-        return opt
-    end
-    return false
-end
-
 def compareData( oldData, currentData )
     results = Array.new
     oldData.each do |old|
