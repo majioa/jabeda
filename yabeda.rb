@@ -1,6 +1,7 @@
 #!/bin/ruby
 
 require 'pp'
+require 'tmail'
 
 require 'yabeda-common.rb'
 require 'yabeda-config.rb'
@@ -76,20 +77,71 @@ def compareData( oldData, currentData )
     return results
 end
 
-def doStuff( results )
+def alertDispatcher( results )
+    enabledModules = CONFIG["enabledModules"]
+    if enabledModules.size > 0 then
+        if CONFIG["enabledModules"].match( /.+,.+/ ) then
+            enabledModules=CONFIG["enabledModules"].split(/,/, 2)
+            enabledModules.each do |mod|
+                doAlert( mod, results )
+            end
+        else
+            doAlert( CONFIG["enabledModules"], results )
+        end
+    else
+        msgDbg("No alert modules are enabled!")
+    end
+end
+
+def doAlert( mod, results )
     output = Array.new
     results.each do |result|
-        out = printf( CONFIG["messageFormat"],
-               Time.at(result[0].to_i).strftime( CONFIG["timeFormat"] ),
-               result[2],
-               result[1],
-               result[3].upcase,
-               result[4],
-               result[5])
+        out = CONFIG["messageFormat"] %
+        [ Time.at(result[0].to_i).strftime( CONFIG["timeFormat"] ),
+          result[2],
+          result[1],
+          result[3].upcase,
+          result[4],
+          result[5] ]
         output << out
     end
-    return output
+
+    case mod
+    when "console":
+        output.each do |out|
+            pp out
+        end
+    when "email":
+        output.each do |out|
+            mail = TMail::Mail.new
+            mail.date = Time.now
+            mail.from = "Yabeda OVZ watcher <yabeda@cryo.net.ru>"
+            mail.to = "pavlov.konstantin@gmail.com"
+            mail.subject = "Problem detected!"
+            mail.mime_version = "1.0"
+            mail.set_content_type 'multipart', 'mixed'
+            mail.transfer_encoding = "8bit"
+            mail.body = nil
+            message = TMail::Mail.new
+            message.set_content_type('text', 'plain', {"charset" =>"utf-8"})
+            message.transfer_encoding = '7bit'
+            message.body = out
+            mail.parts.push(message)
+
+            IO.popen("/usr/sbin/sendmail -oem -oi -t", "w") { |sendmail|
+                sendmail.puts mail.encoded()
+            }
+        end
+
+    end
 end
+
+# typical workflow:
+# getProcPaths() -> getResource() -> currentData
+# readFile(state) -> validateData() -> oldData
+# compareData -> results
+# alertDispatcher(results) -> doAlert()
+# writeFile(state, currentdata)
 
 CONFIG = getConfig( CONFIGFILE ) or return 0
 
@@ -99,7 +151,7 @@ currentData = getResource( getProcPaths() )
 
 if oldData and currentData then
     results = compareData( oldData, currentData )
-    pp doStuff(results)
+    alertDispatcher(results)
 end
 
 #if currentData then
