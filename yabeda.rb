@@ -79,7 +79,7 @@ end
 def doStuff( results )
     output = Array.new
     results.each do |result|
-        out = printf("%s: CT %s on %s: %s changed from %s to %s.\n",
+        out = printf( CONFIG["messageFormat"],
                Time.at(result[0].to_i).strftime( CONFIG["timeFormat"] ),
                result[2],
                result[1],
