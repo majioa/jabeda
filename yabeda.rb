@@ -19,7 +19,7 @@ def getArray()
 end
 
 def readFile( file )
-    if ( FileTest.exists?( file ) ) then
+    if ( FileTest.exists?( file ) ) and ( FileTest.readable_real?( file ) ) then
         contents = File.read( file )
         return contents
     end
@@ -32,7 +32,7 @@ def validateData( data )
     if data != false then
         validatedContent = getArray()
         data.each { |line|
-            if line =~ /.+\s.+\d+\s\w+\s\d+$/ then 
+            if line =~ /\d+\s.+\d+\s\w+\s\d+$/ then
                 line = line.split(" ")
                 validatedContent << line
             end
@@ -126,12 +126,11 @@ end
 def doStuff( results )
     output = getArray()
     results.each do |result|
-        out = printf("%s: vps%s%s %s %s changed from %s to %s.\n", 
-               Time.at(result[0].to_i).strftime("%H:%M:%S %d-%m-%Y"),
+        out = printf("%s: CT %s on %s: %s changed from %s to %s.\n",
+               Time.at(result[0].to_i).strftime( CONFIG["timeFormat"] ),
                result[2],
-               CONFIG["hostNameSuffix"],
                result[1],
-               result[3],
+               result[3].upcase,
                result[4],
                result[5])
         output << out
@@ -145,8 +144,11 @@ oldData = validateData( readFile( STATEFILE ) )
 
 currentData = getResource( getProcPaths() )
 
-results = compareData( oldData, currentData )
+if oldData and currentData then
+    results = compareData( oldData, currentData )
+    pp doStuff(results)
+end
 
-pp doStuff(results)
-
-#saveData(stateFile, currentData)
+#if currentData then
+#    saveData( STATEFILE, currentData)
+#end
