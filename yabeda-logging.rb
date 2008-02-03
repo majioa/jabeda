@@ -1,6 +1,6 @@
 #!/bin/ruby
 
-require 'yabeda-time.rb'
+require 'yabeda-common.rb'
 
 DEBUG = true
 

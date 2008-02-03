@@ -1,5 +1,7 @@
 #!/bin/ruby
 
+require 'yabeda-common.rb'
+
 CONFIGFILE = "/etc/yabeda/yabeda.conf"
 STATEFILE = "/var/lib/yabeda/state"
 

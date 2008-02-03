@@ -2,35 +2,14 @@
 
 require 'pp'
 
+require 'yabeda-common.rb'
 require 'yabeda-config.rb'
-require 'yabeda-time.rb'
 require 'yabeda-logging.rb'
-
-def getHostname()
-    hostname = ENV['HOSTNAME'].to_s
-    if !hostname.match( /#{CONFIG["hostNameAllowedRegex"]}/ ) then
-        hostname += CONFIG["hostNameSuffix"]
-    end
-    return hostname
-end
-
-def getArray()
-    return Array.new
-end
-
-def readFile( file )
-    if ( FileTest.exists?( file ) ) and ( FileTest.readable_real?( file ) ) then
-        contents = File.read( file )
-        return contents
-    end
-    msgDbg( "Failed to open and/or read file #{file}" )
-    return false
-end
 
 def validateData( data )
 
     if data != false then
-        validatedContent = getArray()
+        validatedContent = Array.new
         data.each { |line|
             if line =~ /\d+\s.+\d+\s\w+\s\d+$/ then
                 line = line.split(" ")
@@ -44,7 +23,7 @@ def validateData( data )
 end
 
 def getProcPaths()
-    returnpaths = getArray()
+    returnpaths = Array.new
 
     paths = Dir["/proc/bc/*"].sort
 	if paths then
@@ -59,7 +38,7 @@ def getProcPaths()
 end
 
 def getResource ( paths )
-    output = getArray()
+    output = Array.new
     time = getTime()
     hostname = getHostname()
 
@@ -82,16 +61,6 @@ def getResource ( paths )
     return output
 end
 
-def saveData( file, contents )
-    filedescr = File.open( file, "w+" )
-    contents.each { |arr|
-        line = arr.join(" ")
-        filedescr.write( line + "\n" )
-    }
-    filedescr.close
-    return true
-end
-
 def compareData( oldData, currentData )
     results = Array.new
     oldData.each do |old|
@@ -108,7 +77,7 @@ def compareData( oldData, currentData )
 end
 
 def doStuff( results )
-    output = getArray()
+    output = Array.new
     results.each do |result|
         out = printf("%s: CT %s on %s: %s changed from %s to %s.\n",
                Time.at(result[0].to_i).strftime( CONFIG["timeFormat"] ),
@@ -134,5 +103,5 @@ if oldData and currentData then
 end
 
 #if currentData then
-#    saveData( STATEFILE, currentData)
+#    writeFile( STATEFILE, currentData)
 #end
