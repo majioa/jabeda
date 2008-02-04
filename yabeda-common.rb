@@ -1,4 +1,4 @@
-#!/bin/ruby
+#!/usr/bin/env ruby
 
 require 'yabeda-logging.rb'
 require 'yabeda-config.rb'
