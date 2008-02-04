@@ -3,9 +3,9 @@
 require 'pp'
 require 'tmail'
 
-require 'yabeda-common.rb'
-require 'yabeda-config.rb'
 require 'yabeda-logging.rb'
+require 'yabeda-config.rb'
+require 'yabeda-common.rb'
 
 def validateData( data )
 

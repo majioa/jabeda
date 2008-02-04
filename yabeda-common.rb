@@ -1,10 +1,12 @@
 #!/bin/ruby
 
+require 'yabeda-logging.rb'
+require 'yabeda-config.rb'
+
 def getHostname()
-    hostname_allowedregex = CONFIG['hostname_allowedregex'].nil? ?
-        DEFAULTS['hostname_allowedregex'] : CONFIG['hostname_allowedregex']
-    hostname_suffix = CONFIG['hostname_suffix'].nil? ?
-        DEFAULTS['hostname_suffix'] : CONFIG['hostname_suffix']
+    hostname_allowedregex = getParameter('hostname_allowedregex')
+    hostname_suffix = getParameter('hostname_suffix')
+
     hostname = ENV['HOSTNAME'].to_s
     if !hostname.match( /#{hostname_allowedregex}/ ) then
         hostname += hostname_suffix

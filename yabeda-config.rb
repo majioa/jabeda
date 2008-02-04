@@ -20,7 +20,9 @@ defaults = {
 
 def getConfig( file )
 
-    contents = readFile( file )
+    configfile = FileTest.exists?(file) ? file : './yabeda.conf'
+
+    contents = readFile( configfile )
     opt = Hash.new
 
     if contents then

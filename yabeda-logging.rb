@@ -1,9 +1,11 @@
 #!/bin/ruby
 
-require 'yabeda-common.rb'
+require 'yabeda-config.rb'
 
 def msgDbg( error )
+    debug = getParameter('debug')
+
     error = getTime() + ': ' + error
-    debug = CONFIG['debug'].nil? ? DEFAULTS['debug'] : CONFIG['debug']
+
     debug and puts error
 end
