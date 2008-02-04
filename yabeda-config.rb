@@ -2,8 +2,18 @@
 
 require 'yabeda-common.rb'
 
-CONFIGFILE = "/etc/yabeda/yabeda.conf"
-STATEFILE = "/var/lib/yabeda/state"
+CONFIGFILE = '/etc/yabeda/yabeda.conf'
+STATEFILE = '/var/lib/yabeda/state'
+
+DEFAULTS = {
+    'debug'                     =>  true,
+    'disallowed_proc'           =>  '.+\/0$',
+    'hostname_allowedregex'     =>  '.+',
+    'hostname_suffix'           =>  '.cryo.net.ru',
+    'time_format'               =>  '=%H:%M:%S %d-%m-%Y',
+    'message_format'            =>  '%s: CT %s on %s: %s changed from %s to %s.',
+    'enabled_modules'           =>  'console'
+}
 
 def getConfig( file )
 

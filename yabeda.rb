@@ -19,17 +19,18 @@ def validateData( data )
         }
         return validatedContent
     end
-    msgDbg( "Data validation failed" )
+    msgDbg( 'Data validation failed' )
     return false
 end
 
 def getProcPaths()
     returnpaths = Array.new
+    disregex = CONFIG['disallowed_proc'].nil? ? DEFAULTS['disallowed_proc'] : CONFIG['disallowed_proc']
 
     paths = Dir["/proc/bc/*"].sort
 	if paths then
         paths.each { |path|
-            if FileTest.directory?( path ) and !path.match( /#{CONFIG["disallowed_proc"]}/ ) then
+            if FileTest.directory?( path ) and !path.match( /#{disregex}/ ) then
 	            returnpaths << path
             end
 	    }
@@ -45,7 +46,7 @@ def getResource ( paths )
 
     paths.each { |path|
         veid = path.match( /\d+$/ )[0]
-        resources = readFile( path + "/resources" )
+        resources = readFile( path + '/resources' )
         if resources then
             resources.each { |line|
                 line.strip!
@@ -78,26 +79,23 @@ def compareData( oldData, currentData )
 end
 
 def alertDispatcher( results )
-    enabledModules = CONFIG["enabled_modules"]
-    if enabledModules.size > 0 then
-        if CONFIG["enabled_modules"].match( /.+,.+/ ) then
-            enabledModules=CONFIG["enabled_modules"].split(/,/, 2)
-            enabledModules.each do |mod|
-                doAlert( mod, results )
-            end
-        else
-            doAlert( CONFIG["enabled_modules"], results )
+    enabled_modules = CONFIG['enabled_modules'].nil? ? DEFAULTS['enabled_modules'] : CONFIG['enabled_modules']
+    if enabled_modules.match( /.+,.+/ ) then
+        enabled_modules.split(/,/, 2).each do |mod|
+            doAlert( mod, results )
         end
     else
-        msgDbg("No alert modules are enabled!")
+        doAlert( enabled_modules, results )
     end
 end
 
 def doAlert( mod, results )
+    message_format = CONFIG['message_format'].nil? ? DEFAULTS['message_format'] : CONFIG['message_format']
+    time_format = CONFIG['time_format'].nil? ? DEFAULTS['time_format'] : CONFIG['time_format']
     output = Array.new
     results.each do |result|
-        out = CONFIG["message_format"] %
-        [ Time.at(result[0].to_i).strftime( CONFIG["time_format"] ),
+        out = message_format %
+        [ Time.at(result[0].to_i).strftime( time_format ),
           result[2],
           result[1],
           result[3].upcase,
@@ -107,28 +105,28 @@ def doAlert( mod, results )
     end
 
     case mod
-    when "console":
+    when 'console':
         output.each do |out|
             pp out
         end
-    when "email":
+    when 'email':
         output.each do |out|
             mail = TMail::Mail.new
             mail.date = Time.now
-            mail.from = "Yabeda OVZ watcher <yabeda@cryo.net.ru>"
-            mail.to = "pavlov.konstantin@gmail.com"
-            mail.subject = "Problem detected!"
+            mail.from = 'Yabeda OVZ watcher <yabeda@cryo.net.ru>'
+            mail.to = 'pavlov.konstantin@gmail.com'
+            mail.subject = 'Problem detected!'
             mail.mime_version = "1.0"
             mail.set_content_type 'multipart', 'mixed'
             mail.transfer_encoding = "8bit"
             mail.body = nil
             message = TMail::Mail.new
-            message.set_content_type('text', 'plain', {"charset" =>"utf-8"})
+            message.set_content_type('text', 'plain', {'charset' =>'utf-8'})
             message.transfer_encoding = '7bit'
             message.body = out
             mail.parts.push(message)
 
-            IO.popen("/usr/sbin/sendmail -oem -oi -t", "w") { |sendmail|
+            IO.popen('/usr/sbin/sendmail -oem -oi -t', 'w') { |sendmail|
                 sendmail.puts mail.encoded()
             }
         end
