@@ -20,7 +20,13 @@ defaults = {
 
 def getConfig( file )
 
-    configfile = FileTest.exists?(file) ? file : './yabeda.conf'
+    configfile = FileTest.exists?( file ) ? file : './yabeda.conf'
+    configfile = FileTest.exists?( configfile ) ? configfile : false
+
+    if configfile == false then
+        puts 'Error opening config file.'
+        exit 0
+    end
 
     contents = readFile( configfile )
     opt = Hash.new
