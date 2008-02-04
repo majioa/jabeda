@@ -2,9 +2,7 @@
 
 require 'yabeda-common.rb'
 
-DEBUG = true
-
 def msgDbg( error )
     error = getTime() + ": " + error
-    DEBUG and puts error
+    CONFIG["debug"] and puts error
 end

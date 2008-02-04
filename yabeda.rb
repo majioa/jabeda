@@ -29,7 +29,7 @@ def getProcPaths()
     paths = Dir["/proc/bc/*"].sort
 	if paths then
         paths.each { |path|
-            if FileTest.directory?( path ) and !path.match( /#{CONFIG["disProc"]}/ ) then
+            if FileTest.directory?( path ) and !path.match( /#{CONFIG["disallowed_proc"]}/ ) then
 	            returnpaths << path
             end
 	    }
@@ -78,15 +78,15 @@ def compareData( oldData, currentData )
 end
 
 def alertDispatcher( results )
-    enabledModules = CONFIG["enabledModules"]
+    enabledModules = CONFIG["enabled_modules"]
     if enabledModules.size > 0 then
-        if CONFIG["enabledModules"].match( /.+,.+/ ) then
-            enabledModules=CONFIG["enabledModules"].split(/,/, 2)
+        if CONFIG["enabled_modules"].match( /.+,.+/ ) then
+            enabledModules=CONFIG["enabled_modules"].split(/,/, 2)
             enabledModules.each do |mod|
                 doAlert( mod, results )
             end
         else
-            doAlert( CONFIG["enabledModules"], results )
+            doAlert( CONFIG["enabled_modules"], results )
         end
     else
         msgDbg("No alert modules are enabled!")
@@ -96,8 +96,8 @@ end
 def doAlert( mod, results )
     output = Array.new
     results.each do |result|
-        out = CONFIG["messageFormat"] %
-        [ Time.at(result[0].to_i).strftime( CONFIG["timeFormat"] ),
+        out = CONFIG["message_format"] %
+        [ Time.at(result[0].to_i).strftime( CONFIG["time_format"] ),
           result[2],
           result[1],
           result[3].upcase,

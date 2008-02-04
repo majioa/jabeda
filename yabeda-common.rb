@@ -2,8 +2,8 @@
 
 def getHostname()
     hostname = ENV['HOSTNAME'].to_s
-    if !hostname.match( /#{CONFIG["hostNameAllowedRegex"]}/ ) then
-        hostname += CONFIG["hostNameSuffix"]
+    if !hostname.match( /#{CONFIG["hostname_allowedregex"]}/ ) then
+        hostname += CONFIG["hostname_suffix"]
     end
     return hostname
 end
