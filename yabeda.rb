@@ -25,7 +25,7 @@ end
 
 def getProcPaths()
     returnpaths = Array.new
-    disregex = CONFIG['disallowed_proc'].nil? ? DEFAULTS['disallowed_proc'] : CONFIG['disallowed_proc']
+    disregex = getParameter('disallowed_proc')
 
     paths = Dir["/proc/bc/*"].sort
 	if paths then
@@ -79,7 +79,8 @@ def compareData( oldData, currentData )
 end
 
 def alertDispatcher( results )
-    enabled_modules = CONFIG['enabled_modules'].nil? ? DEFAULTS['enabled_modules'] : CONFIG['enabled_modules']
+    enabled_modules = getParameter('enabled_modules')
+
     if enabled_modules.match( /.+,.+/ ) then
         enabled_modules.split(/,/, 2).each do |mod|
             doAlert( mod, results )
@@ -90,8 +91,9 @@ def alertDispatcher( results )
 end
 
 def doAlert( mod, results )
-    message_format = CONFIG['message_format'].nil? ? DEFAULTS['message_format'] : CONFIG['message_format']
-    time_format = CONFIG['time_format'].nil? ? DEFAULTS['time_format'] : CONFIG['time_format']
+    message_format = getParameter('message_format')
+    time_format = getParameter('time_format')
+
     output = Array.new
     results.each do |result|
         out = message_format %
@@ -110,12 +112,16 @@ def doAlert( mod, results )
             pp out
         end
     when 'email':
+        mail_from = getParameter('mail_from')
+        mail_to = getParameter('mail_to')
+        mail_subject = getParameter('mail_subject')
+
         output.each do |out|
             mail = TMail::Mail.new
             mail.date = Time.now
-            mail.from = 'Yabeda OVZ watcher <yabeda@cryo.net.ru>'
-            mail.to = 'pavlov.konstantin@gmail.com'
-            mail.subject = 'Problem detected!'
+            mail.from = mail_from
+            mail.to = mail_to
+            mail.subject = mail_subject
             mail.mime_version = "1.0"
             mail.set_content_type 'multipart', 'mixed'
             mail.transfer_encoding = "8bit"
@@ -140,8 +146,6 @@ end
 # compareData -> results
 # alertDispatcher(results) -> doAlert()
 # writeFile(state, currentdata)
-
-CONFIG = getConfig( CONFIGFILE ) or return 0
 
 oldData = validateData( readFile( STATEFILE ) )
 
