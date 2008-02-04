@@ -8,8 +8,7 @@ require 'yabeda-config.rb'
 require 'yabeda-common.rb'
 
 def validateData( data )
-
-    if data != false then
+    unless data == false
         validatedContent = Array.new
         data.each { |line|
             if line =~ /\d+\s.+\d+\s\w+\s\d+$/ then
@@ -18,9 +17,10 @@ def validateData( data )
             end
         }
         return validatedContent
+    else
+        msgDbg( 'Data validation failed' )
+        return false
     end
-    msgDbg( 'Data validation failed' )
-    return false
 end
 
 def getProcPaths()
@@ -47,7 +47,7 @@ def getResource ( paths )
     paths.each { |path|
         veid = path.match( /\d+$/ )[0]
         resources = readFile( path + '/resources' )
-        if resources then
+        unless resources.nil?
             resources.each { |line|
                 line.strip!
                 if line =~ /^\w+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+$/ then
@@ -65,6 +65,7 @@ end
 
 def compareData( oldData, currentData )
     results = Array.new
+
     oldData.each do |old|
         veid = old[2]
         param = old[3]
