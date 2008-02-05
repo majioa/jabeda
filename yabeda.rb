@@ -8,7 +8,7 @@ require 'tmail'
 CONFIGFILE = '/etc/yabeda/yabeda.conf'
 STATEFILE = '/var/lib/yabeda/state'
 
-defaults = {
+DEFAULTS = {
     'debug'                     =>  true,
     'disallowed_proc'           =>  '.+\/0$',
     'hostname_allowedregex'     =>  '.+',
@@ -18,7 +18,7 @@ defaults = {
     'enabled_modules'           =>  'console',
     'mail_from'                 =>  'Yabeda OVZ watcher <yabeda@cryo.net.ru>',
     'mail_to'                   =>  'pavlov.konstantin@gmail.com',
-    'mail_subject'              =>  'Problem detected!'
+    'subject_format'            =>  'VPS%d: %s failcnt -> %s!'
 }
 
 # {{{ Common IO functions
@@ -173,6 +173,7 @@ def compareData( oldData, currentData )
         currentData.each do |cur|
             if ( old[2] == cur[2] ) and (old[3] == cur[3] ) and (old[4] != cur[4] )then
                         results << [ cur[0], cur[1], cur[2], cur[3], old[4], cur[4] ]
+                        #            time    host    veid    param   value   value
             end
         end
     end
@@ -198,17 +199,23 @@ end
 def doAlert( mod, results )
     message_format = getParameter('message_format')
     time_format = getParameter('time_format')
+    subject_format = getParameter('subject_format')
 
     output = Array.new
     results.each do |result|
-        out = message_format %
+        body = message_format %
         [ Time.at(result[0].to_i).strftime( time_format ),
           result[2],
           result[1],
           result[3].upcase,
           result[4],
           result[5] ]
-        output << out
+        subject = subject_format %
+        [ result[2],
+          result[3].upcase,
+          result[5]
+        ]
+        output << [ subject, body ]
     end
 
     case mod
@@ -219,14 +226,13 @@ def doAlert( mod, results )
     when 'email':
         mail_from = getParameter('mail_from')
         mail_to = getParameter('mail_to')
-        mail_subject = getParameter('mail_subject')
 
         output.each do |out|
             mail = TMail::Mail.new
             mail.date = Time.now
             mail.from = mail_from
             mail.to = mail_to
-            mail.subject = mail_subject
+            mail.subject = out[0]
             mail.mime_version = "1.0"
             mail.set_content_type 'multipart', 'mixed'
             mail.transfer_encoding = "8bit"
@@ -234,7 +240,7 @@ def doAlert( mod, results )
             message = TMail::Mail.new
             message.set_content_type('text', 'plain', {'charset' =>'utf-8'})
             message.transfer_encoding = '7bit'
-            message.body = out
+            message.body = out[1]
             mail.parts.push(message)
 
             IO.popen('/usr/sbin/sendmail -oem -oi -t', 'w') { |sendmail|
