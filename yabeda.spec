@@ -43,7 +43,7 @@ touch %buildroot%_localstatedir/yabeda/state
 %_sbindir/yabeda
 %_localstatedir/yabeda
 %dir %_sysconfdir/yabeda
-%config %_sysconfdir/yabeda.conf
+%config %_sysconfdir/yabeda/yabeda.conf
 
 %changelog
 * Tue Feb 05 2008 Pavlov Konstantin <thresh@altlinux.ru> 0.0.1-alt1
