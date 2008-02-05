@@ -29,17 +29,21 @@ whether the needed parameter reached its limit.
 %setup -q
 
 %install
+mkdir -p %buildroot%_localstatedir/yabeda
 mkdir -p %buildroot%_sysconfdir/cron.d
 mkdir -p %buildroot%_sysconfdir/yabeda
 mkdir -p %buildroot%_sbindir
 install -pm 750 yabeda.rb %buildroot%_sbindir/yabeda
 install -pm 640 yabeda.conf %buildroot%_sysconfdir/yabeda/yabeda.conf
 install -pm 644 yabeda.cron %buildroot%_sysconfdir/cron.d/yabeda
+touch %buildroot%_localstatedir/yabeda/state
 
 %files
 %_sysconfdir/cron.d/yabeda
 %_sbindir/yabeda
-%_sysconfdir/yabeda
+%_localstatedir/yabeda
+%dir %_sysconfdir/yabeda
+%config %_sysconfdir/yabeda.conf
 
 %changelog
 * Tue Feb 05 2008 Pavlov Konstantin <thresh@altlinux.ru> 0.0.1-alt1
