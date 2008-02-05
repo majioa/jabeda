@@ -4,6 +4,7 @@
 
 require 'pp'
 require 'tmail'
+require 'socket'
 
 CONFIGFILE = '/etc/yabeda/yabeda.conf'
 STATEFILE = '/var/lib/yabeda/state'
@@ -93,7 +94,7 @@ def getHostname()
     hostname_allowedregex = getParameter('hostname_allowedregex')
     hostname_suffix = getParameter('hostname_suffix')
 
-    hostname = ENV['HOSTNAME'].to_s
+    hostname = Socket.gethostname
     if !hostname.match( /#{hostname_allowedregex}/ ) then
         hostname += hostname_suffix
     end
