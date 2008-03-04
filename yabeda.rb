@@ -17,8 +17,8 @@ DEFAULTS = {
     'time_format'               =>  '=%H:%M:%S %d-%m-%Y',
     'message_format'            =>  '%s: CT %s on %s: %s failcnt changed from %s to %s.',
     'enabled_modules'           =>  'console',
-    'mail_from'                 =>  'Yabeda OVZ watcher <yabeda@cryo.net.ru>',
-    'mail_to'                   =>  'pavlov.konstantin@gmail.com',
+    'mail_from'                 =>  'Yabeda OVZ watcher <insert@lame-name.here>',
+    'mail_to'                   =>  'foobar@domain.tld',
     'subject_format'            =>  'VPS%d: %s failcnt -> %s!'
 }
 
