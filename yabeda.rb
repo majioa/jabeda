@@ -5,6 +5,7 @@
 require 'pp'
 require 'tmail'
 require 'socket'
+require 'mysql'
 
 CONFIGFILE = '/etc/yabeda/yabeda.conf'
 STATEFILE = '/var/lib/yabeda/state'
@@ -19,7 +20,11 @@ DEFAULTS = {
     'enabled_modules'           =>  'console',
     'mail_from'                 =>  'Yabeda OVZ watcher <insert@lame-name.here>',
     'mail_to'                   =>  'foobar@domain.tld',
-    'subject_format'            =>  'VPS%d: %s failcnt -> %s!'
+    'subject_format'            =>  'VPS%d: %s failcnt -> %s!',
+    'mysql_host'                =>  'localhost',
+    'mysql_db'                  =>  'yabeda',
+    'mysql_user'                =>  'yabeda',
+    'mysql_table'               =>  'alerts'
 }
 
 # {{{ Common IO functions
@@ -102,12 +107,28 @@ def getHostname()
 end
 
 def getTime()
-        return Time.now.to_i.to_s
+    return Time.now.to_i.to_s
 end
 
 # }}}
 
-# {{{ Acquriing data
+# {{{ MySQL functions
+
+def connectSql()
+    hostname = getParameter('mysql_hostname')
+    db = getParameter('mysql_db')
+    user = getParameter('mysql_user')
+    password = getParameter('mysql_password')
+
+    dbh = Mysql.init()
+    dbh.options(Mysql::OPT_CONNECT_TIMEOUT,50)
+    dbh.connect( hostname, user, user, password )
+    return dbh
+end
+
+# }}}
+
+# {{{ Acquiring data
 def validateData( data )
     unless data == false
         validatedContent = Array.new
@@ -223,6 +244,25 @@ def doAlert( mod, results )
     when 'console':
         output.each do |out|
             pp out
+        end
+    when 'mysql':
+        sqlstring = "INSERT INTO TABLE `foobar` (time, hostnode, veid, param, old, current) values "
+
+        results.each do |out|
+            sqlstring += "('"
+            sqlstring += Time.at(out[0].to_i).strftime( time_format ) + "', '"
+            sqlstring += out[2].to_s + "', '"
+            sqlstring += out[1].to_s + "', '"
+            sqlstring += out[3].to_s.upcase + "', '"
+            sqlstring += out[5].to_s + "', '"
+            sqlstring += out[4].to_s + "'), "
+        end
+        sqlstring = sqlstring[1..-3]
+        pp sqlstring
+
+        dbh = connectSql()
+        if dbh
+            # do somthing
         end
     when 'email':
         mail_from = getParameter('mail_from')
