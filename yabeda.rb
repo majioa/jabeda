@@ -116,13 +116,13 @@ end
 
 def connectSql()
     hostname = getParameter('mysql_hostname')
-    db = getParameter('mysql_db')
+    database = getParameter('mysql_db')
     user = getParameter('mysql_user')
     password = getParameter('mysql_password')
 
     dbh = Mysql.init()
     dbh.options(Mysql::OPT_CONNECT_TIMEOUT,50)
-    dbh.connect( hostname, user, user, password )
+    dbh.connect( hostname, user, password, database )
     return dbh
 end
 
@@ -246,7 +246,7 @@ def doAlert( mod, results )
             pp out
         end
     when 'mysql':
-        sqlstring = "INSERT INTO TABLE `foobar` (time, hostnode, veid, param, old, current) values "
+        sqlstring = "INSERT INTO TABLE `foobar` (time, hostnode, veid, parameter, oldvalue, currentvalue) values "
 
         results.each do |out|
             sqlstring += "('"
@@ -262,7 +262,8 @@ def doAlert( mod, results )
 
         dbh = connectSql()
         if dbh
-            # do somthing
+            push = dbh.execute(sqlstring)
+            push.finish
         end
     when 'email':
         mail_from = getParameter('mail_from')
