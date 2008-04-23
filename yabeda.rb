@@ -5,7 +5,7 @@
 require 'pp'
 require 'tmail'
 require 'socket'
-require 'mysql'
+require 'dbi'
 
 CONFIGFILE = '/etc/yabeda/yabeda.conf'
 STATEFILE = '/var/lib/yabeda/state'
@@ -24,7 +24,8 @@ DEFAULTS = {
     'mysql_host'                =>  'localhost',
     'mysql_db'                  =>  'yabeda',
     'mysql_user'                =>  'yabeda',
-    'mysql_table'               =>  'alerts'
+    'mysql_password'            =>  'yabeda',
+    'mysql_table'               =>  'stats'
 }
 
 # {{{ Common IO functions
@@ -115,14 +116,12 @@ end
 # {{{ MySQL functions
 
 def connectSql()
-    hostname = getParameter('mysql_hostname')
+    hostname = getParameter('mysql_host')
     database = getParameter('mysql_db')
     user = getParameter('mysql_user')
     password = getParameter('mysql_password')
 
-    dbh = Mysql.init()
-    dbh.options(Mysql::OPT_CONNECT_TIMEOUT,50)
-    dbh.connect( hostname, user, password, database )
+    dbh = DBI.connect("DBI:Mysql:database=#{database};host=#{hostname}", user, password)
     return dbh
 end
 
@@ -246,7 +245,8 @@ def doAlert( mod, results )
             pp out
         end
     when 'mysql':
-        sqlstring = "INSERT INTO TABLE `foobar` (time, hostnode, veid, parameter, oldvalue, currentvalue) values "
+        table = getParameter("mysql_table")
+        sqlstring = "INSERT `#{table}` (time, hostnode, veid, parameter, oldvalue, currentvalue) values "
 
         results.each do |out|
             sqlstring += "('"
@@ -257,8 +257,7 @@ def doAlert( mod, results )
             sqlstring += out[5].to_s + "', '"
             sqlstring += out[4].to_s + "'), "
         end
-        sqlstring = sqlstring[1..-3]
-        pp sqlstring
+        sqlstring = sqlstring[0..-3]
 
         dbh = connectSql()
         if dbh
