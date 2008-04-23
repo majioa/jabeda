@@ -262,8 +262,15 @@ def doAlert( mod, results )
 
         dbh = connectSql()
         if dbh
-            push = dbh.execute(sqlstring)
-            push.finish
+            begin
+                push = dbh.execute(sqlstring)
+                push.finish
+            rescue DBI::DatabaseError => a
+                puts "An error occurred"
+                puts "Error code: #{a.err}"
+                puts "Error message: #{a.errstr}"
+                puts "Error SQLSTATE: #{a.state}"
+            end
         end
     when 'email':
         mail_from = getParameter('mail_from')
