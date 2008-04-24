@@ -262,7 +262,7 @@ def doAlert( mod, results )
             mail = TMail::Mail.new
             mail.date = Time.now
             mail.from = $config[:mail_from]
-            mail.to = $config[:mail_to]
+            mail.to = $config[:mail_to].join(",")
             mail.subject = out[0]
             mail.mime_version = "1.0"
             mail.set_content_type 'multipart', 'mixed'
