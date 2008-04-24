@@ -7,6 +7,7 @@ require 'tmail'
 require 'socket'
 require 'dbi'
 require 'yaml'
+require 'xmpp4r'
 
 $config = {
     :configfile                =>  "/etc/yabeda/yabeda.conf",
@@ -25,7 +26,10 @@ $config = {
     :mysql_db                  =>  "yabeda",
     :mysql_user                =>  "yabeda",
     :mysql_password            =>  "yabeda",
-    :mysql_table               =>  "stats"
+    :mysql_table               =>  "stats",
+    :jabber_jid                =>  "bot@localhost/bot",
+    :jabber_password           =>  "bot",
+    :jabber_to                 =>  ["admin@localhost"]
 }
 
 # {{{ Common IO functions
@@ -124,7 +128,7 @@ def getProcPaths()
     paths = Dir["/proc/bc/*"].sort
 	if paths then
         paths.each { |path|
-            if FileTest.directory?( path ) and !path.match( /#{$config[:disregex]}/ ) then
+            if FileTest.directory?( path ) and !path.match( /#{$config[:disallowed_proc]}/ ) then
 	            returnpaths << path
             end
 	    }
@@ -172,7 +176,7 @@ def compareData( oldData, currentData )
         end
     end
 
-    unless !results.nil?
+    if !results.nil? then
         return results
     else
         msgDbg("Data unchanged")
@@ -274,7 +278,28 @@ def doAlert( mod, results )
                 sendmail.puts mail.encoded()
             }
         end
-
+    when 'jabber':
+        jabberid = Jabber::JID::new( $config[:jabber_jid] )
+        jabberpwd = $config[:jabber_password]
+        jabberto = $config[:jabber_to]
+        client = Jabber::Client::new( jid, true )
+        begin
+        client.connect
+        client.auth( jabberpwd )
+        jabberto.each do |to|
+            output.each do |out|
+                subject = out[0]
+                body = out[1]
+                message = Jabber::Message::new(to, body).set_type(:normal).set_id('1').set_subject(subject)
+                client.send(message)
+            end
+        end
+        client.close
+        rescue Jabber::Error => a
+            puts "An error occurred"
+            puts "Error code: #{a.err}"
+            puts "Error message: #{a.errstr}"
+        end
     end
 end
 
@@ -300,7 +325,7 @@ if oldData and currentData then
     alertDispatcher(results)
 end
 
-#if currentData then
-#    writeFile( STATEFILE, currentData)
-#end
+if currentData then
+    writeFile( $config[:statefile], currentData)
+end
 # }}}
