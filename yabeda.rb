@@ -20,7 +20,7 @@ $config = {
     :message_format            =>  "%s: CT %s on %s: %s failcnt changed from %s to %s.",
     :enabled_modules           =>  "console",
     :mail_from                 =>  "Yabeda OVZ watcher <insert@lame-name.here>",
-    :mail_to                   =>  "foobar@domain.tld",
+    :mail_to                   =>  ["foobar@domain.tld", "baz@domain.tld"],
     :subject_format            =>  "VPS%d: %s failcnt -> %s!",
     :mysql_host                =>  "localhost",
     :mysql_db                  =>  "yabeda",
@@ -29,7 +29,7 @@ $config = {
     :mysql_table               =>  "stats",
     :jabber_jid                =>  "bot@localhost/bot",
     :jabber_password           =>  "bot",
-    :jabber_to                 =>  ["admin@localhost"]
+    :jabber_to                 =>  ["admin@localhost", "monitoring@localhost"]
 }
 
 # {{{ Common IO functions
@@ -307,6 +307,7 @@ end
 
 # {{{ Main program
 
+def main()
 # typical workflow:
 # getProcPaths() -> getResource() -> currentData
 # readFile(state) -> validateData() -> oldData
@@ -314,18 +315,30 @@ end
 # alertDispatcher(results) -> doAlert()
 # writeFile(state, currentdata)
 
-getConfig( $config[:configfile] )
+    getConfig( $config[:configfile] )
 
-oldData = validateData( readFile( $config[:statefile] ) )
+    oldData = validateData( readFile( $config[:statefile] ) )
 
-currentData = getResource( getProcPaths() )
+    currentData = getResource( getProcPaths() )
 
-if oldData and currentData then
-    results = compareData( oldData, currentData )
-    alertDispatcher(results)
-end
+    if oldData and currentData then
+        results = compareData( oldData, currentData )
+        alertDispatcher(results)
+    end
 
-if currentData then
-    writeFile( $config[:statefile], currentData)
+    if currentData then
+        writeFile( $config[:statefile], currentData)
+    end
 end
 # }}}
+
+if ARGV.size == 2 and ARGV[0] == "configdump" then
+    File.open( ARGV[1], 'w' ) do |out|
+        YAML.dump( $config, out )
+    end
+elsif ARGV.size == 0 then
+    main()
+else
+    puts " Unknown command: #{ARGV[0]}"
+    puts " Usage: #{__FILE__} configdump /path/to/dump.conf"
+end
