@@ -176,7 +176,7 @@ def compareData( oldData, currentData )
         end
     end
 
-    if !results.nil? then
+    if results.size > 0
         return results
     else
         msgDbg("Data unchanged")
@@ -233,10 +233,9 @@ def doAlert( mod, results )
         sqlstring = "INSERT `#{table}` (time, hostnode, veid, parameter, oldvalue, currentvalue) values "
 
         results.each do |out|
-            sqlstring += "('"
-            sqlstring += Time.at(out[0].to_i).strftime( time_format ) + "', '"
-            sqlstring += out[2].to_s + "', '"
+            sqlstring += "( FROM_UNIXTIME(" + out[0].to_s + "), '"
             sqlstring += out[1].to_s + "', '"
+            sqlstring += out[2].to_s + "', '"
             sqlstring += out[3].to_s.upcase + "', '"
             sqlstring += out[5].to_s + "', '"
             sqlstring += out[4].to_s + "'), "
@@ -282,7 +281,7 @@ def doAlert( mod, results )
         jabberid = Jabber::JID::new( $config[:jabber_jid] )
         jabberpwd = $config[:jabber_password]
         jabberto = $config[:jabber_to]
-        client = Jabber::Client::new( jid, true )
+        client = Jabber::Client::new( jabberid, true )
         begin
         client.connect
         client.auth( jabberpwd )
