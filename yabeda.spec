@@ -1,5 +1,5 @@
 Name: yabeda
-Version: 0.0.1
+Version: 0.0.2
 Release: alt1
 
 Summary: Yabeda OVZ complainer.
@@ -8,10 +8,6 @@ Group: System/Base
 Url: http://yabeda.cryo.net.ru
 
 Packager: Pavlov Konstantin <thresh@altlinux.ru>
-
-Requires: libruby >= 1.8-alt3
-Requires: ruby-module-debug
-Requires: ruby-tmail
 
 Source: %name-%version.tar.bz2
 
@@ -46,6 +42,9 @@ touch %buildroot%_localstatedir/yabeda/state
 %config %_sysconfdir/yabeda/yabeda.conf
 
 %changelog
+* Thu May 15 2008 Pavlov Konstantin <thresh@altlinux.ru> 0.0.2-alt1
+- 0.0.2 release.
+
 * Tue Feb 05 2008 Pavlov Konstantin <thresh@altlinux.ru> 0.0.1-alt1
 - 0.0.1 release.
 
