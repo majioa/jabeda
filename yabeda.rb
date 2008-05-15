@@ -193,7 +193,7 @@ def alertDispatcher( results )
     enabled_modules = $config[:enabled_modules]
 
     if enabled_modules.match( /.+,.+/ ) then
-        enabled_modules.split(/,/, 2).each do |mod|
+        enabled_modules.split(/,/).each do |mod|
             doAlert( mod, results )
         end
     else
