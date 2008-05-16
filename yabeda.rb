@@ -180,7 +180,7 @@ def compareData( oldData, currentData )
         return results
     else
         msgDbg("Data unchanged")
-        exit 0
+        return false
     end
 end
 
@@ -320,7 +320,7 @@ def main()
 
     currentData = getResource( getProcPaths() )
 
-    if oldData and currentData then
+    if oldData.size > 0 and currentData.size > 0 then
         results = compareData( oldData, currentData )
         alertDispatcher(results)
     end
