@@ -64,7 +64,7 @@ def getConfig( file )
 
     if !configfile then
         puts 'Error opening config file.'
-        exit 0
+        exit 1
     end
 
     $config.merge!(YAML.load(File.open(configfile)))
