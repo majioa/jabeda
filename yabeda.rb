@@ -322,7 +322,9 @@ def main()
 
     if oldData.size > 0 and currentData.size > 0 then
         results = compareData( oldData, currentData )
-        alertDispatcher(results)
+        if results then
+            alertDispatcher(results)
+        end
     end
 
     if currentData then
