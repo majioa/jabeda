@@ -10,6 +10,7 @@ require 'yaml'
 require 'xmpp4r'
 
 $config = {
+    :enabled                   =>  false,
     :configfile                =>  "/etc/yabeda/yabeda.conf",
     :statefile                 =>  "/var/lib/yabeda/state",
     :debug                     =>  true,
@@ -315,6 +316,11 @@ def main()
 # writeFile(state, currentdata)
 
     getConfig( $config[:configfile] )
+
+    if !$config[:enabled] then
+        msgDbg( "Not doing any checks, bailing out..." )
+        exit 0
+    end
 
     oldData = validateData( readFile( $config[:statefile] ) )
 
