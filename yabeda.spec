@@ -11,6 +11,8 @@ Packager: Pavlov Konstantin <thresh@altlinux.ru>
 
 Source: %name-%version.tar.bz2
 
+BuildArch: noarch
+
 BuildRequires: libruby-devel ruby-stdlibs ruby
 
 %description
