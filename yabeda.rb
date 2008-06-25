@@ -28,6 +28,8 @@ $config = {
     :mysql_user                =>  "yabeda",
     :mysql_password            =>  "yabeda",
     :mysql_table               =>  "stats",
+    :alive_notify              =>  false,
+    :events_table              =>  "events",
     :jabber_jid                =>  "bot@localhost/bot",
     :jabber_password           =>  "bot",
     :jabber_to                 =>  ["admin@localhost", "monitoring@localhost"]
@@ -305,6 +307,69 @@ end
 
 # }}}
 
+# {{{ alive check // now in SQL only.
+
+def aliveDispatcher()
+    table = $config[:events_table]
+    hostname = getHostname()
+    date = Time.now.to_i
+    sqlstring = "SELECT COUNT(hostname) FROM #{table} WHERE hostname='#{hostname}'"
+    dbh = connectSql()
+    if dbh
+        begin
+            push = dbh.select_one(sqlstring)
+            case push[0]
+            when 0:
+                sqlstring = "INSERT events (hostname, ping_time) VALUES ('#{hostname}', FROM_UNIXTIME( '#{date}' ) )"
+                insert = dbh.execute(sqlstring)
+                insert.finish
+            when 1:
+                sqlstring = "UPDATE events SET hostname='#{hostname}', ping_time=FROM_UNIXTIME('#{date}') WHERE hostname='#{hostname}';"
+                update = dbh.execute(sqlstring)
+                update.finish
+            else
+                sqlstring = "DELETE from events where hostname = '#{hostname}'"
+                delete = dbh.execute(sqlstring)
+                delete.finish
+                aliveDispatcher()
+            end
+            dbh.disconnect
+        rescue DBI::DatabaseError => a
+            puts "An error occurred"
+            puts "Error code: #{a.err}"
+            puts "Error message: #{a.errstr}"
+            puts "Error SQLSTATE: #{a.state}"
+        end
+    end
+end
+
+# }}}
+
+# {{{ Something happened, let's throw admins a mail.
+
+def vsePloho()
+    hostname = getHostname()
+    mail = TMail::Mail.new
+    mail.date = Time.now
+    mail.from = $config[:mail_from]
+    mail.to = $config[:mail_to].join(",")
+    mail.subject = "Yabeda failed to do alerts and ping on #{hostname}"
+    mail.mime_version = "1.0"
+    mail.set_content_type 'multipart', 'mixed'
+    mail.transfer_encoding = "8bit"
+    mail.body = nil
+    message = TMail::Mail.new
+    message.set_content_type('text', 'plain', {'charset' =>'utf-8'})
+    message.transfer_encoding = '7bit'
+    message.body = "Yabeda failed to do alert dispatching and insert stuff to SQL at the same time on #{hostname} at #{Time.now}."
+    mail.parts.push(message)
+    IO.popen('/usr/sbin/sendmail -oem -oi -t', 'w') { |sendmail|
+        sendmail.puts mail.encoded()
+    }
+end
+
+# }}}
+
 # {{{ Main program
 
 def main()
@@ -327,9 +392,16 @@ def main()
     currentData = getResource( getProcPaths() )
 
     if oldData.size > 0 and currentData.size > 0 then
-        results = compareData( oldData, currentData )
-        if results then
-            alertDispatcher(results)
+        begin
+            results = compareData( oldData, currentData )
+            if results then
+                alertDispatcher(results)
+            end
+            $config[:alive_notify] and aliveDispatcher()
+        rescue
+            vsePloho()
+            puts "Couldnt make a transaction of alert dispatching and pinger"
+            exit 1
         end
     end
 

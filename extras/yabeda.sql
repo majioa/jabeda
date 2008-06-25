@@ -9,3 +9,11 @@ CREATE TABLE `stats` (
       `currentvalue` bigint(20) NOT NULL
 );
 
+drop table if exists `events`;
+
+CREATE TABLE `events` (
+      `monitoring_id` int(11) NOT NULL auto_increment,
+      `hostname` varchar(255) NOT NULL default '',
+      `ping_time` datetime default NULL,
+      PRIMARY KEY  (`monitoring_id`)
+);
