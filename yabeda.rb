@@ -240,8 +240,8 @@ def doAlert( mod, results )
             sqlstring += out[1].to_s + "', '"
             sqlstring += out[2].to_s + "', '"
             sqlstring += out[3].to_s.upcase + "', '"
-            sqlstring += out[5].to_s + "', '"
-            sqlstring += out[4].to_s + "'), "
+            sqlstring += out[4].to_s + "', '"
+            sqlstring += out[5].to_s + "'), "
         end
         sqlstring = sqlstring[0..-3]
 
@@ -320,15 +320,15 @@ def aliveDispatcher()
             push = dbh.select_one(sqlstring)
             case push[0]
             when 0:
-                sqlstring = "INSERT events (hostname, ping_time) VALUES ('#{hostname}', FROM_UNIXTIME( '#{date}' ) )"
+                sqlstring = "INSERT #{table} (hostname, ping_time) VALUES ('#{hostname}', FROM_UNIXTIME( '#{date}' ) )"
                 insert = dbh.execute(sqlstring)
                 insert.finish
             when 1:
-                sqlstring = "UPDATE events SET hostname='#{hostname}', ping_time=FROM_UNIXTIME('#{date}') WHERE hostname='#{hostname}';"
+                sqlstring = "UPDATE #{table} SET hostname='#{hostname}', ping_time=FROM_UNIXTIME('#{date}') WHERE hostname='#{hostname}';"
                 update = dbh.execute(sqlstring)
                 update.finish
             else
-                sqlstring = "DELETE from events where hostname = '#{hostname}'"
+                sqlstring = "DELETE from #{table} where hostname = '#{hostname}'"
                 delete = dbh.execute(sqlstring)
                 delete.finish
                 aliveDispatcher()
