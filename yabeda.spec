@@ -40,7 +40,7 @@ touch %buildroot%_localstatedir/yabeda/state
 %_sysconfdir/cron.d/yabeda
 %_sbindir/yabeda
 %dir %_localstatedir/yabeda
-%attr(root,root,600) %_localstatedir/yabeda/state
+%attr(600,root,root) %_localstatedir/yabeda/state
 %dir %_sysconfdir/yabeda
 %config %_sysconfdir/yabeda/yabeda.conf
 
