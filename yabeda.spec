@@ -1,5 +1,5 @@
 Name: yabeda
-Version: 0.0.4
+Version: 0.0.5
 Release: alt1
 
 Summary: Yabeda OVZ complainer.
@@ -45,6 +45,9 @@ touch %buildroot%_localstatedir/yabeda/state
 %config %_sysconfdir/yabeda/yabeda.conf
 
 %changelog
+* Fri Aug 29 2008 Pavlov Konstantin <thresh@altlinux.ru> 0.0.5-alt1
+- 0.0.5 release.
+
 * Fri Jul 04 2008 Pavlov Konstantin <thresh@altlinux.ru> 0.0.4-alt1
 - 0.0.4 release.
 
