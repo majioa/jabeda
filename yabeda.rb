@@ -25,6 +25,7 @@ $config = {
     :subject_format            =>  "VPS%d: %s failcnt -> %s!",
     :mysql_host                =>  "localhost",
     :mysql_db                  =>  "yabeda",
+    :mysql_port                =>  "3306",
     :mysql_user                =>  "yabeda",
     :mysql_password            =>  "yabeda",
     :mysql_table               =>  "stats",
@@ -102,7 +103,7 @@ end
 # {{{ MySQL functions
 
 def connectSql()
-    dbh = DBI.connect("DBI:Mysql:database=#{$config[:mysql_db]};host=#{$config[:mysql_host]}", $config[:mysql_user], $config[:mysql_password])
+    dbh = DBI.connect("DBI:Mysql:database=#{$config[:mysql_db]};host=#{$config[:mysql_host]};port=#{$config[:mysql_port]}", $config[:mysql_user], $config[:mysql_password])
     return dbh
 end
 
