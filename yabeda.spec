@@ -5,13 +5,15 @@ Release: alt1
 Summary: Yabeda OVZ complainer.
 License: GPLv3
 Group: System/Base
-Url: http://yabeda.cryo.net.ru
+Url: http://www.assembla.com/wiki/show/yabeda
 
 Packager: Pavlov Konstantin <thresh@altlinux.ru>
 
 Source: %name-%version.tar.bz2
 
 BuildArch: noarch
+
+Requires: ruby ruby-dbi mysql-ruby xmpp4r ruby-tmail
 
 BuildRequires: libruby-devel ruby-stdlibs ruby
 
