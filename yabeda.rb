@@ -358,7 +358,6 @@ def vsePloho()
     mail.mime_version = "1.0"
     mail.set_content_type 'multipart', 'mixed'
     mail.transfer_encoding = "8bit"
-    mail.body = nil
     message = TMail::Mail.new
     message.set_content_type('text', 'plain', {'charset' =>'utf-8'})
     message.transfer_encoding = '7bit'
