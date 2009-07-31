@@ -228,11 +228,11 @@ def doAlert( mod, results )
     end
 
     case mod
-    when 'console':
+    when 'console' then
         output.each do |out|
             pp out
         end
-    when 'mysql':
+    when 'mysql' then
         table = $config[:mysql_table]
         sqlstring = "INSERT `#{table}` (time, hostnode, veid, parameter, oldvalue, currentvalue) values "
 
@@ -260,7 +260,7 @@ def doAlert( mod, results )
                 puts "Error SQLSTATE: #{a.state}"
             end
         end
-    when 'email':
+    when 'email' then
         output.each do |out|
             mail = TMail::Mail.new
             mail.date = Time.now
@@ -281,7 +281,7 @@ def doAlert( mod, results )
                 sendmail.puts mail.encoded()
             }
         end
-    when 'jabber':
+    when 'jabber' then
         jabberid = Jabber::JID::new( $config[:jabber_jid] )
         jabberpwd = $config[:jabber_password]
         jabberto = $config[:jabber_to]
@@ -320,11 +320,11 @@ def aliveDispatcher()
         begin
             push = dbh.select_one(sqlstring)
             case push[0]
-            when 0:
+            when 0 then
                 sqlstring = "INSERT #{table} (hostname, ping_time) VALUES ('#{hostname}', FROM_UNIXTIME( '#{date}' ) )"
                 insert = dbh.execute(sqlstring)
                 insert.finish
-            when 1:
+            when 1 then
                 sqlstring = "UPDATE #{table} SET hostname='#{hostname}', ping_time=FROM_UNIXTIME('#{date}') WHERE hostname='#{hostname}';"
                 update = dbh.execute(sqlstring)
                 update.finish
