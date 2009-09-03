@@ -1,6 +1,6 @@
 Name: yabeda
 Version: 0.0.6
-Release: alt1
+Release: alt2
 
 Summary: Yabeda OVZ complainer.
 License: GPLv3
@@ -47,6 +47,10 @@ touch %buildroot%_localstatedir/yabeda/state
 %config %_sysconfdir/yabeda/yabeda.conf
 
 %changelog
+* Thu Sep 03 2009 Pavlov Konstantin <thresh@altlinux.ru> 0.0.6-alt2
+- Fix syntax for ruby 1.9.
+- Fix #18785.
+
 * Fri May 15 2009 Pavlov Konstantin <thresh@altlinux.ru> 0.0.6-alt1
 - 0.0.6 release.
 
