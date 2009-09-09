@@ -1,6 +1,6 @@
 Name: yabeda
 Version: 0.0.6
-Release: alt2
+Release: alt3
 
 Summary: Yabeda OVZ complainer.
 License: GPLv3
@@ -13,7 +13,7 @@ Source: %name-%version.tar.bz2
 
 BuildArch: noarch
 
-Requires: ruby ruby-dbi mysql-ruby xmpp4r ruby-tmail
+Requires: ruby ruby-dbi mysql-ruby ruby-xmpp4r ruby-tmail
 
 BuildRequires: libruby-devel ruby-stdlibs ruby
 
@@ -47,6 +47,9 @@ touch %buildroot%_localstatedir/yabeda/state
 %config %_sysconfdir/yabeda/yabeda.conf
 
 %changelog
+* Wed Sep 09 2009 Pavlov Konstantin <thresh@altlinux.ru> 0.0.6-alt3
+- Fix wrong Requires.
+
 * Thu Sep 03 2009 Pavlov Konstantin <thresh@altlinux.ru> 0.0.6-alt2
 - Fix syntax for ruby 1.9.
 - Fix #18785.
