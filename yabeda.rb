@@ -49,7 +49,7 @@ end
 
 def writeFile( file, contents )
     filedescr = File.open( file, 'w+' )
-    contents.each_line { |arr|
+    contents.each { |arr|
         line = arr.join(' ')
         filedescr.write( line + "\n" )
     }
@@ -131,7 +131,7 @@ def getProcPaths()
 
     paths = Dir["/proc/bc/*"].sort
 	if paths then
-        paths.each_line { |path|
+        paths.each { |path|
             if FileTest.directory?( path ) and !path.match( /#{$config[:disallowed_proc]}/ ) then
 	            returnpaths << path
             end
@@ -146,7 +146,7 @@ def getResource ( paths )
     time = getTime()
     hostname = getHostname()
 
-    paths.each_line { |path|
+    paths.each { |path|
         veid = path.match( /\d+$/ )[0]
         resources = readFile( path + '/resources' )
         unless resources.nil?
