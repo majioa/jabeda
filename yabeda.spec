@@ -5,38 +5,32 @@ Release: alt4
 Summary: Yabeda OVZ complainer.
 License: GPLv3
 Group: System/Base
-Url: http://www.assembla.com/wiki/show/yabeda
 
+Url: http://www.assembla.com/wiki/show/yabeda
+Source: %name-%version.tar.bz2
 Packager: Pavlov Konstantin <thresh@altlinux.ru>
 
-Source: %name-%version.tar.bz2
-
+Requires: ruby ruby-dbi mysql-ruby ruby-xmpp4r ruby-tmail
+BuildRequires: libruby-devel ruby-stdlibs ruby
 BuildArch: noarch
 
-Requires: ruby ruby-dbi mysql-ruby ruby-xmpp4r ruby-tmail
-
-BuildRequires: libruby-devel ruby-stdlibs ruby
-
 %description
-Yabeda is an OpenVZ failcnt complainer which tends to be lightweight, flexible
-and easily extendable.
+Yabeda is an OpenVZ failcnt complainer which tends to be lightweight,
+flexible and easily extendable.
 
-Should be used on host machines (via some cron-job) to generate alerts when
-failcnt gets increased. Failcnt is the counter used in openvz kernels to tell
-whether the needed parameter reached its limit.
+Should be used on host machines (via some cron-job) to generate alerts
+when failcnt gets increased. Failcnt is the counter used in OpenVZ
+kernels to tell whether the needed parameter reached its limit.
 
 %prep
-%setup -q
+%setup
+touch state
 
 %install
-mkdir -p %buildroot%_localstatedir/yabeda
-mkdir -p %buildroot%_sysconfdir/cron.d
-mkdir -p %buildroot%_sysconfdir/yabeda
-mkdir -p %buildroot%_sbindir
-install -pm 750 yabeda.rb %buildroot%_sbindir/yabeda
-install -pm 640 yabeda.conf %buildroot%_sysconfdir/yabeda/yabeda.conf
-install -pm 644 yabeda.cron %buildroot%_sysconfdir/cron.d/yabeda
-touch %buildroot%_localstatedir/yabeda/state
+install -pDm600 state %buildroot%_localstatedir/yabeda/state
+install -pDm750 yabeda.rb %buildroot%_sbindir/yabeda
+install -pDm640 yabeda.conf %buildroot%_sysconfdir/yabeda/yabeda.conf
+install -pDm644 yabeda.cron %buildroot%_sysconfdir/cron.d/yabeda
 
 %files
 %_sysconfdir/cron.d/yabeda
