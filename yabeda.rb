@@ -168,11 +168,11 @@ end
 def compareData( oldData, currentData )
     results = Array.new
 
-    oldData.each_line do |old|
+    oldData.each do |old|
         veid = old[2]
         param = old[3]
         value = old[4]
-        currentData.each_line do |cur|
+        currentData.each do |cur|
             if ( old[2] == cur[2] ) and (old[3] == cur[3] ) and (old[4] != cur[4] )then
                         results << [ cur[0], cur[1], cur[2], cur[3], old[4], cur[4] ]
                         #            time    host    veid    param   value   value
@@ -197,7 +197,7 @@ def alertDispatcher( results )
     enabled_modules = $config[:enabled_modules]
 
     if enabled_modules.match( /.+,.+/ ) then
-        enabled_modules.split(/,/).each_line do |mod|
+        enabled_modules.split(/,/).each do |mod|
             doAlert( mod, results )
         end
     else
@@ -211,7 +211,7 @@ def doAlert( mod, results )
     subject_format = $config[:subject_format]
 
     output = Array.new
-    results.each_line do |result|
+    results.each do |result|
         body = message_format %
         [ Time.at(result[0].to_i).strftime( time_format ),
           result[2],
@@ -229,14 +229,14 @@ def doAlert( mod, results )
 
     case mod
     when 'console' then
-        output.each_line do |out|
+        output.each do |out|
             pp out
         end
     when 'mysql' then
         table = $config[:mysql_table]
         sqlstring = "INSERT `#{table}` (time, hostnode, veid, parameter, oldvalue, currentvalue) values "
 
-        results.each_line do |out|
+        results.each do |out|
             sqlstring += "( FROM_UNIXTIME(" + out[0].to_s + "), '"
             sqlstring += out[1].to_s + "', '"
             sqlstring += out[2].to_s + "', '"
@@ -261,7 +261,7 @@ def doAlert( mod, results )
             end
         end
     when 'email' then
-        output.each_line do |out|
+        output.each do |out|
             mail = TMail::Mail.new
             mail.date = Time.now
             mail.from = $config[:mail_from]
@@ -289,8 +289,8 @@ def doAlert( mod, results )
         begin
         client.connect
         client.auth( jabberpwd )
-        jabberto.each_line do |to|
-            output.each_line do |out|
+        jabberto.each do |to|
+            output.each do |out|
                 subject = out[0]
                 body = out[1]
                 message = Jabber::Message::new(to, body).set_type(:normal).set_id('1').set_subject(subject)
