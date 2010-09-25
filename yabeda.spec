@@ -1,8 +1,8 @@
 Name: yabeda
-Version: 0.0.6
-Release: alt4
+Version: 0.0.7
+Release: alt1
 
-Summary: Yabeda OVZ complainer.
+Summary: Yabeda OVZ complainer
 License: GPLv3
 Group: System/Base
 
@@ -10,7 +10,8 @@ Url: http://www.assembla.com/wiki/show/yabeda
 Source: %name-%version.tar.bz2
 Packager: Pavlov Konstantin <thresh@altlinux.ru>
 
-Requires: ruby ruby-dbi mysql-ruby ruby-xmpp4r ruby-tmail
+#Requires: ruby ruby-dbi mysql-ruby ruby-xmpp4r ruby-tmail
+Requires: ruby
 BuildRequires: libruby-devel ruby-stdlibs ruby
 BuildArch: noarch
 
@@ -21,6 +22,11 @@ flexible and easily extendable.
 Should be used on host machines (via some cron-job) to generate alerts
 when failcnt gets increased. Failcnt is the counter used in OpenVZ
 kernels to tell whether the needed parameter reached its limit.
+
+Please install these packages for additional functionality:
+- mysql needs:  mysql-ruby ruby-dbi ruby-dbd-mysql
+- email needs:  ruby-tmail
+- jabber needs: ruby-xmpp4r
 
 %prep
 %setup
@@ -41,6 +47,12 @@ install -pDm644 yabeda.cron %buildroot%_sysconfdir/cron.d/yabeda
 %config %_sysconfdir/yabeda/yabeda.conf
 
 %changelog
+* Sat Sep 25 2010 Michael Shigorin <mike@altlinux.org> 0.0.7-alt1
+- a fork?:
+  + fix for current sisyphus' ruby
+  + drop MIME mail, do it plain and simple
+- untie hardwired requires, list them in description instead
+
 * Fri Oct 09 2009 Pavlov Konstantin <thresh@altlinux.ru> 0.0.6-alt4
 - Fix syntax for ruby 1.9 one more time.
 
