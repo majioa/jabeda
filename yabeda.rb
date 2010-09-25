@@ -267,15 +267,9 @@ def doAlert( mod, results )
             mail.from = $config[:mail_from]
             mail.to = $config[:mail_to].join(",")
             mail.subject = out[0]
-            mail.mime_version = "1.0"
-            mail.set_content_type 'multipart', 'mixed'
+            mail.set_content_type('text', 'plain', {'charset' =>'utf-8'})
             mail.transfer_encoding = "8bit"
-            mail.body = nil
-            message = TMail::Mail.new
-            message.set_content_type('text', 'plain', {'charset' =>'utf-8'})
-            message.transfer_encoding = '7bit'
-            message.body = out[1]
-            mail.parts.push(message)
+            mail.body = out[1]
 
             IO.popen('/usr/sbin/sendmail -oem -oi -t', 'w') { |sendmail|
                 sendmail.puts mail.encoded()
@@ -355,14 +349,9 @@ def vsePloho()
     mail.from = $config[:mail_from]
     mail.to = $config[:mail_to].join(",")
     mail.subject = "Yabeda failed to do alerts and ping on #{hostname}"
-    mail.mime_version = "1.0"
-    mail.set_content_type 'multipart', 'mixed'
-    mail.transfer_encoding = "8bit"
-    message = TMail::Mail.new
-    message.set_content_type('text', 'plain', {'charset' =>'utf-8'})
-    message.transfer_encoding = '7bit'
-    message.body = "Yabeda failed to do alert dispatching and insert stuff to SQL at the same time on #{hostname} at #{Time.now}."
-    mail.parts.push(message)
+    mail.set_content_type('text', 'plain', {'charset' =>'utf-8'})
+    mail.transfer_encoding = '8bit'
+    mail.body = "Yabeda failed to do alert dispatching and insert stuff to SQL at the same time on #{hostname} at #{Time.now}."
     IO.popen('/usr/sbin/sendmail -oem -oi -t', 'w') { |sendmail|
         sendmail.puts mail.encoded()
     }
