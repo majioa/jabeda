@@ -6,22 +6,28 @@ require "jabeda/version"
 Gem::Specification.new do |spec|
   spec.name          = "jabeda"
   spec.version       = Jabeda::VERSION
-  spec.authors       = ["Malo Skrylevo"]
-  spec.email         = ["majioa@yandex.ru"]
+  spec.authors       = ["Konstantin Pavlov", "Michael Shigorin", "Malo Skrylevo"]
+  spec.email         = ["thresh@altlinux.org", "mike@altlinux.org", "majioa@yandex.ru"]
 
-  spec.summary       = %q{TODO: Write a short summary, because RubyGems requires one.}
-  spec.description   = %q{TODO: Write a longer description or delete this line.}
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
-  spec.license       = "MIT"
+  spec.summary       = %q{Jabeda OVZ complainer}
+  spec.description   = <<-DESC
+     Jabeda (formerly Yabeda) is an OpenVZ failcnt complainer which tends to be lightweight, flexible and easily extendable. Should be used on host machines (via some cron-job) to generate alerts when failcnt gets increased. Failcnt is the counter used in OpenVZ kernels to tell whether the needed parameter reached its limit.
+
+     these gems will allow you to use additional functions:
+      - mysql, dbi, and dbd-mysql for mysql support
+      - tmail for email support
+      - xmpp4r for jabber support
+     DESC
+  spec.homepage      = "https://github.com/majioa/jabeda"
+  spec.license       = "GPLv3"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
   # to allow pushing to a single host or delete this section to allow pushing to any host.
   if spec.respond_to?(:metadata)
-    spec.metadata["allowed_push_host"] = "TODO: Set to 'http://mygemserver.com'"
+    spec.metadata["allowed_push_host"] = "http://rubygems.org"
 
     spec.metadata["homepage_uri"] = spec.homepage
-    spec.metadata["source_code_uri"] = "TODO: Put your gem's public repo URL here."
-    spec.metadata["changelog_uri"] = "TODO: Put your gem's CHANGELOG.md URL here."
+    spec.metadata["source_code_uri"] = "https://github.com/majioa/jabeda"
   else
     raise "RubyGems 2.0 or newer is required to protect against " \
       "public gem pushes."
@@ -35,6 +41,12 @@ Gem::Specification.new do |spec|
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
+
+  spec.add_dependency "mysql", "~> 2.9"
+  spec.add_dependency "dbi", "~> 0.4.5"
+  spec.add_dependency "dbd-mysql", "~> 0.4.4"
+  spec.add_dependency "tmail", "~> 1.2"
+  spec.add_dependency "xmpp4r", "~> 0.5.6"
 
   spec.add_development_dependency "bundler", "~> 2.0"
   spec.add_development_dependency "rake", "~> 10.0"
