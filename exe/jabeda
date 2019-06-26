@@ -20,7 +20,7 @@ $config = {
     :time_format               =>  "%H:%M:%S %d-%m-%Y",
     :message_format            =>  "%s: CT %s on %s: %s failcnt changed from %s to %s.",
     :enabled_modules           =>  "console",
-    :mail_from                 =>  "Yabeda OVZ watcher <insert@lame-name.here>",
+    :mail_from                 =>  "Jabeda OVZ watcher <insert@lame-name.here>",
     :mail_to                   =>  ["foobar@domain.tld", "baz@domain.tld"],
     :subject_format            =>  "VPS%d: %s failcnt increased!",
     :mysql_host                =>  "localhost",
@@ -48,13 +48,9 @@ def readFile( file )
 end
 
 def writeFile( file, contents )
-    filedescr = File.open( file, 'w+' )
-    contents.each { |arr|
-        line = arr.join(' ')
-        filedescr.write( line + "\n" )
-    }
-    filedescr.close
-    return true
+    FileUtils.mkdir_p(File.dirname(file))
+
+    File.open(file, "w+") { |f| f.puts(contents) }
 end
 
 # }}}
@@ -120,7 +116,7 @@ def validateData( data )
         return validatedContent
     else
         msgDbg( 'Data validation failed' )
-        return false
+        return []
     end
 end
 
@@ -133,10 +129,10 @@ def getProcPaths()
             if FileTest.directory?( path ) and !path.match( /#{$config[:disallowed_proc]}/ ) then
 	            returnpaths << path
             end
-	    }
-		return returnpaths
-	end
-	return false
+	}
+        return returnpaths
+    end
+    return []
 end
 
 def getResource ( paths )
@@ -155,11 +151,11 @@ def getResource ( paths )
                     failcnt = line.match( /\d+$/ )[0]
                     output << [ time.to_s, hostname, veid, resource, failcnt ]
                 end
-        	}
+            }
         else
-            return false
+            return []
         end
-    	}
+    }
     return output
 end
 
@@ -182,7 +178,7 @@ def compareData( oldData, currentData )
         return results
     else
         msgDbg("Data unchanged")
-        return false
+        return []
     end
 end
 
@@ -335,17 +331,20 @@ end
 
 def vsePloho()
     hostname = getHostname()
-    mail = TMail::Mail.new
-    mail.date = Time.now
-    mail.from = $config[:mail_from]
-    mail.to = $config[:mail_to].join(",")
-    mail.subject = "Yabeda failed to do alerts and ping on #{hostname}"
-    mail.set_content_type('text', 'plain', {'charset' =>'utf-8'})
-    mail.transfer_encoding = '8bit'
-    mail.body = "Yabeda failed to do alert dispatching and insert stuff to SQL at the same time on #{hostname} at #{Time.now}."
-    IO.popen('/usr/sbin/sendmail -oem -oi -t', 'w') { |sendmail|
-        sendmail.puts mail.encoded()
-    }
+
+    mail = Mail.new do
+       date = Time.now
+       from = $config[:mail_from]
+       to = $config[:mail_to].join(",")
+       subject = "Yabeda failed to do alerts and ping on #{hostname}"
+
+       content_type 'text/plain; charset=UTF-8'
+       content_transfer_encoding "8bit"
+       body = "Jabeda failed to do alert dispatching and insert stuff to SQL at the same time on #{hostname} at #{Time.now}."
+    end
+
+    mail.delivery_method :sendmail
+    mail.deliver
 end
 
 # }}}
