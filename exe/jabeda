@@ -3,15 +3,15 @@
 # vim: set fdm=marker :
 
 require 'pp'
-require 'tmail'
+require 'sqlite3'
+require 'mail'
 require 'socket'
-require 'dbi'
 require 'yaml'
 require 'xmpp4r'
 
 $config = {
     :enabled                   =>  false,
-    :configfile                =>  "/etc/yabeda/yabeda.conf",
+    :configfile                =>  [ "/etc/yabeda/jabeda.conf", 'etc/jabeda.conf' ],
     :statefile                 =>  "/var/lib/yabeda/state",
     :debug                     =>  true,
     :disallowed_proc           =>  ".+\/0$",
@@ -60,12 +60,11 @@ end
 # }}}
 
 # {{{ Configuration functions
-def getConfig( file )
+def getConfig( list )
 
-    configfile = FileTest.exists?( file ) ? file : './yabeda.conf'
-    configfile = FileTest.exists?( configfile ) ? configfile : false
+    configfile = list.find { |file| File.exist?(file) }
 
-    if !configfile then
+    if configfile.nil?
         puts 'Error opening config file.'
         exit 1
     end
@@ -103,8 +102,7 @@ end
 # {{{ MySQL functions
 
 def connectSql()
-    dbh = DBI.connect("DBI:Mysql:database=#{$config[:mysql_db]};host=#{$config[:mysql_host]};port=#{$config[:mysql_port]}", $config[:mysql_user], $config[:mysql_password])
-    return dbh
+    return SQLite3::Database.new "#{$config[:mysql_db]}.db"
 end
 
 # }}}
@@ -251,29 +249,26 @@ def doAlert( mod, results )
         dbh = connectSql()
         if dbh
             begin
-                push = dbh.execute(sqlstring)
-                push.finish
-            rescue DBI::DatabaseError => a
-                puts "An error occurred"
-                puts "Error code: #{a.err}"
-                puts "Error message: #{a.errstr}"
-                puts "Error SQLSTATE: #{a.state}"
+                dbh.execute(sqlstring)
+            rescue e
+                puts "#{e.class}: #{e.message}"
             end
         end
     when 'email' then
         output.each do |out|
-            mail = TMail::Mail.new
-            mail.date = Time.now
-            mail.from = $config[:mail_from]
-            mail.to = $config[:mail_to].join(",")
-            mail.subject = out[0]
-            mail.set_content_type('text', 'plain', {'charset' =>'utf-8'})
-            mail.transfer_encoding = "8bit"
-            mail.body = out[1]
+            mail = Mail.new do
+                date    Time.now
+                from    $config[:mail_from]
+                to =    $config[:mail_to].join(",")
+                subject out[0]
+                body    out[1]
 
-            IO.popen('/usr/sbin/sendmail -oem -oi -t', 'w') { |sendmail|
-                sendmail.puts mail.encoded()
-            }
+                content_type 'text/plain; charset=UTF-8'
+                content_transfer_encoding "8bit"
+            end
+
+            mail.delivery_method :sendmail
+            mail.deliver
         end
     when 'jabber' then
         jabberid = Jabber::JID::new( $config[:jabber_jid] )
@@ -312,23 +307,19 @@ def aliveDispatcher()
     dbh = connectSql()
     if dbh
         begin
-            push = dbh.select_one(sqlstring)
+            push = dbh.execute(sqlstring)
             case push[0]
             when 0 then
                 sqlstring = "INSERT #{table} (hostname, ping_time) VALUES ('#{hostname}', FROM_UNIXTIME( '#{date}' ) )"
-                insert = dbh.execute(sqlstring)
-                insert.finish
+                dbh.execute(sqlstring)
             when 1 then
                 sqlstring = "UPDATE #{table} SET hostname='#{hostname}', ping_time=FROM_UNIXTIME('#{date}') WHERE hostname='#{hostname}';"
-                update = dbh.execute(sqlstring)
-                update.finish
+                dbh.execute(sqlstring)
             else
                 sqlstring = "DELETE from #{table} where hostname = '#{hostname}'"
-                delete = dbh.execute(sqlstring)
-                delete.finish
+                dbh.execute(sqlstring)
                 aliveDispatcher()
             end
-            dbh.disconnect
         rescue DBI::DatabaseError => a
             puts "An error occurred"
             puts "Error code: #{a.err}"
